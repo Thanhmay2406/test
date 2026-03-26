@@ -8,32 +8,33 @@ client.on("error", function (err) {
     console.error("Redis error", err);
 });
 
+client.connect();
 
 app.get('/', function (req, res) {
     res.redirect('/index.html');
 });
 
-
-
-app.get('/json', function (req, res) {
-    client.hlen('wallet', function (err, coins) {
-        client.get('hashes', function (err, hashes) {
-            var now = Date.now() / 1000;
-            res.json( {
-                coins: coins,
-                hashes: hashes,
-                now: now
-            });
+app.get('/json', async function (req, res) {
+    try {
+        var coins = await client.hLen('wallet');
+        var hashes = await client.get('hashes');
+        var now = Date.now() / 1000;
+        res.json({
+            coins: coins,
+            hashes: hashes,
+            now: now
         });
-    });
+    } catch (err) {
+        console.error("Error fetching data from Redis", err);
+        res.status(500).json({error: "Internal server error"});
+    }
 });
 
-
-app.use(express.static('files'));
+app.use(express.static('/files'));
 
 var PORT = 80;
 
 var server = app.listen(PORT, function (err) {
     if (err) console.log(err);
-    console.log('WEBUI running on PORT',PORT);
+    console.log('WEBUI running on PORT', PORT);
 });

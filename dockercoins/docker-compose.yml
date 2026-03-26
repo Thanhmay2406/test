@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 
 services:
   rng:
@@ -28,7 +28,7 @@ services:
       - mynet
 
   redis:
-    image: redis
+    image: redis:7-alpine
     container_name: redis
     networks:
       - mynet
